@@ -5,16 +5,15 @@ const express = require("express");
 
 const app = express();
 const cors = require("cors");
+const routes = require("./routes");
+const errorHandler = require("./middlewares/errorHandler");
 
 app.use(express.json());
-
 app.use(cors());
 
-app.get("/test", (req, res) => {
-  res.send("The server is running!");
-});
+app.use(routes);
 
-const knex = require("../src/database/index.js");
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
