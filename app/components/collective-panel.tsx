@@ -1,29 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, MessageCircle, Trash2 } from "lucide-react"
+import { Heart, Trash2, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-interface Achievement {
+interface RecyclingPost {
   id: number
   user: string
   avatar: string
-  description: string
   bags: number
   timestamp: string
   likes: number
   liked: boolean
 }
 
+interface RecyclingRecord {
+  id: number
+  bags: number
+  timestamp: string
+  sharedToFeed: boolean
+}
+
 export default function CollectivePanel() {
-  const [achievements, setAchievements] = useState<Achievement[]>([
+  const [posts, setPosts] = useState<RecyclingPost[]>([
     {
       id: 1,
       user: "Maria Silva",
       avatar: "👩",
-      description: "Reciclou 3 sacos de papel e papelão",
       bags: 3,
       timestamp: "há 2 horas",
       likes: 12,
@@ -33,7 +38,6 @@ export default function CollectivePanel() {
       id: 2,
       user: "João Santos",
       avatar: "👨",
-      description: "Reciclou 2 sacos de plástico",
       bags: 2,
       timestamp: "há 4 horas",
       likes: 8,
@@ -43,7 +47,6 @@ export default function CollectivePanel() {
       id: 3,
       user: "Ana Costa",
       avatar: "👩‍🦰",
-      description: "Reciclou 1 saco de vidro",
       bags: 1,
       timestamp: "há 6 horas",
       likes: 5,
@@ -51,35 +54,44 @@ export default function CollectivePanel() {
     },
   ])
 
-  const [newAchievement, setNewAchievement] = useState("")
+  const [showModal, setShowModal] = useState(false)
+  const [bagsInput, setBagsInput] = useState("")
+  const [shareToFeed, setShareToFeed] = useState(true)
 
   const toggleLike = (id: number) => {
-    setAchievements(
-      achievements.map((a) =>
-        a.id === id ? { ...a, liked: !a.liked, likes: a.liked ? a.likes - 1 : a.likes + 1 } : a,
-      ),
+    setPosts(
+      posts.map((p) => (p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p)),
     )
   }
 
-  const addAchievement = () => {
-    if (newAchievement.trim()) {
-      const newItem: Achievement = {
-        id: achievements.length + 1,
-        user: "Você",
-        avatar: "🎉",
-        description: newAchievement,
-        bags: 1,
-        timestamp: "agora",
-        likes: 0,
-        liked: false,
+  const deletePost = (id: number) => {
+    setPosts(posts.filter((p) => p.id !== id))
+  }
+
+  const handleRegisterRecycling = () => {
+    const bags = Number.parseInt(bagsInput)
+    if (!isNaN(bags) && bags > 0) {
+      if (shareToFeed) {
+        const newPost: RecyclingPost = {
+          id: posts.length + 1,
+          user: "Você",
+          avatar: "🎉",
+          bags,
+          timestamp: "agora",
+          likes: 0,
+          liked: false,
+        }
+        setPosts([newPost, ...posts])
       }
-      setAchievements([newItem, ...achievements])
-      setNewAchievement("")
+      // Aqui você salvaria também no histórico de registros do usuário
+      setBagsInput("")
+      setShareToFeed(true)
+      setShowModal(false)
     }
   }
 
   // Calculate team progress
-  const totalBags = achievements.reduce((sum, a) => sum + a.bags, 0)
+  const totalBags = posts.reduce((sum, p) => sum + p.bags, 0)
   const goalBags = 100
   const progressPercentage = (totalBags / goalBags) * 100
 
@@ -120,65 +132,110 @@ export default function CollectivePanel() {
         </CardContent>
       </Card>
 
-      {/* Add Achievement Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Registre sua Reciclagem</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Input
-            placeholder="O que você reciclou hoje?"
-            value={newAchievement}
-            onChange={(e) => setNewAchievement(e.target.value)}
-            className="bg-muted/50"
-          />
-          <Button onClick={addAchievement} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-            Compartilhar
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Achievements Feed */}
+      {/* Recycling Feed */}
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-foreground">Feed de Conquistas</h2>
-        {achievements.map((achievement) => (
-          <Card key={achievement.id} className="hover:shadow-md transition-shadow">
+        <h2 className="text-xl font-semibold text-foreground">Feed de Reciclagens</h2>
+        {posts.map((post) => (
+          <Card key={post.id} className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               {/* User Header */}
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">{achievement.avatar}</span>
+                <span className="text-2xl">{post.avatar}</span>
                 <div className="flex-1">
-                  <p className="font-semibold text-foreground">{achievement.user}</p>
-                  <p className="text-xs text-muted-foreground">{achievement.timestamp}</p>
+                  <p className="font-semibold text-foreground">{post.user}</p>
+                  <p className="text-xs text-muted-foreground">{post.timestamp}</p>
                 </div>
+                <button
+                  onClick={() => deletePost(post.id)}
+                  className="text-muted-foreground hover:text-red-600 transition-colors"
+                  title="Deletar post"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Achievement Content */}
-              <p className="text-foreground mb-3">{achievement.description}</p>
-
-              {/* Bag Badge */}
+              {/* Post Content */}
               <div className="inline-block bg-accent/20 text-accent px-3 py-1 rounded-full text-sm font-medium mb-3">
-                +{achievement.bags} saco{achievement.bags > 1 ? "s" : ""}
+                +{post.bags} saco{post.bags > 1 ? "s" : ""}
               </div>
 
-              {/* Actions */}
+              {/* Like Action */}
               <div className="flex items-center gap-4 text-muted-foreground">
                 <button
-                  onClick={() => toggleLike(achievement.id)}
+                  onClick={() => toggleLike(post.id)}
                   className="flex items-center gap-1 hover:text-primary transition-colors"
                 >
-                  <Heart className={`w-5 h-5 ${achievement.liked ? "fill-primary text-primary" : ""}`} />
-                  <span className="text-sm">{achievement.likes}</span>
-                </button>
-                <button className="flex items-center gap-1 hover:text-primary transition-colors">
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm">Comentar</span>
+                  <Heart className={`w-5 h-5 ${post.liked ? "fill-primary text-primary" : ""}`} />
+                  <span className="text-sm">{post.likes}</span>
                 </button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed bottom-32 right-4 bg-primary hover:bg-primary/90 text-primary-foreground w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all"
+        title="Registrar reciclagem"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+          <div className="bg-background w-full rounded-t-lg p-6 space-y-4 max-w-2xl mx-auto">
+            <h2 className="text-2xl font-bold text-foreground">Registre sua Reciclagem</h2>
+
+            {/* Input de sacos */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Quantos sacos você reciclou?</label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={bagsInput}
+                onChange={(e) => setBagsInput(e.target.value)}
+                className="bg-muted/50 text-lg"
+                min="1"
+              />
+            </div>
+
+            {/* Checkbox para compartilhar */}
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <input
+                type="checkbox"
+                id="shareFeed"
+                checked={shareToFeed}
+                onChange={(e) => setShareToFeed(e.target.checked)}
+                className="w-5 h-5 cursor-pointer accent-primary"
+              />
+              <label htmlFor="shareFeed" className="flex-1 cursor-pointer text-foreground">
+                Compartilhar no feed de reciclagens
+              </label>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              {shareToFeed
+                ? "Seu registro será visível para todos do grupo"
+                : "Seu registro será contabilizado nas métricas, mas não será visível no feed"}
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleRegisterRecycling}
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Registrar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

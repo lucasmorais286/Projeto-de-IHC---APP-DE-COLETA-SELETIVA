@@ -5,28 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Leaf, Droplets, Zap, Package } from "lucide-react"
 
 export default function ImpactPage() {
-  // Calculate impact metrics based on 25 bags recycled
-  const bagsRecycled = 25
-  const energySaved = bagsRecycled * 4 // kWh
-  const co2Avoided = bagsRecycled * 0.4 // kg
-  const waterSaved = bagsRecycled * 25 // liters
-  const rawMaterialSaved = bagsRecycled * 0.5 // kg
-  const landfillReduced = bagsRecycled * 50 // liters
+  const bagsRecycled = 125
+  const energySaved = bagsRecycled * 4
+  const co2Avoided = bagsRecycled * 0.4
+  const waterSaved = bagsRecycled * 25
+  const rawMaterialSaved = bagsRecycled * 0.5
+  const landfillReduced = bagsRecycled * 50
 
   const impactData = [
-    { name: "Semana 1", sacos: 4 },
-    { name: "Semana 2", sacos: 6 },
-    { name: "Semana 3", sacos: 8 },
-    { name: "Semana 4", sacos: 7 },
+    { name: "Semana 1", sacos: 24 },
+    { name: "Semana 2", sacos: 32 },
+    { name: "Semana 3", sacos: 35 },
+    { name: "Semana 4", sacos: 34 },
   ]
-
-  const energyData = [
-    { name: "Energia Economizada (kWh)", value: energySaved },
-    { name: "CO₂ Evitado (kg)", value: co2Avoided * 10 },
-    { name: "Água Economizada (L)", value: waterSaved / 10 },
-  ]
-
-  const COLORS = ["#48a15a", "#5ab76a", "#65c57a"]
 
   return (
     <div className="p-4 max-w-2xl mx-auto space-y-6">
@@ -34,9 +25,9 @@ export default function ImpactPage() {
       <div className="pt-4">
         <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
           <Leaf className="w-8 h-8 text-primary" />
-          Impacto Ambiental
+          Impacto do Condomínio
         </h1>
-        <p className="text-muted-foreground mt-1">Veja o quanto você está ajudando o planeta</p>
+        <p className="text-muted-foreground mt-1">Veja o impacto coletivo da nossa comunidade</p>
       </div>
 
       {/* Impact Metrics Grid */}
@@ -125,8 +116,8 @@ export default function ImpactPage() {
       {/* Equivalent Conversions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Equivalências</CardTitle>
-          <CardDescription>O que seus {bagsRecycled} sacos reciclados representam</CardDescription>
+          <CardTitle className="text-lg">Equivalências do Condomínio</CardTitle>
+          <CardDescription>O que nossos {bagsRecycled} sacos reciclados representam</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
