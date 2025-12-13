@@ -55,11 +55,43 @@ export default function ProfilePage({ userName, currentGroup, onLogout, handleBa
     fetchRecords()
   }, [currentGroup])
 
+  // Fonte para a ponderação dos materias por saco reciclado: https://www.gov.br/mma/pt-br/acesso-a-informacao/acoes-e-programas/programa-projetos-acoes-obras-atividades/agendaambientalurbana/lixao-zero/plano_nacional_de_residuos_solidos-1.pdf
+  // Fonte para os calculos de impacto ambiental: https://www.4menearme.com/tools/recycling-calculator , https://lessismore.org/materials/28-why-recycle
+  // Fonte para os calculos de CO2 evitado: https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator
+
   const userBagsRecycled = records.reduce((sum, r) => sum + Number(r.bags), 0)
-  const userEnergySaved = userBagsRecycled * 4
-  const userCo2Avoided = userBagsRecycled * 0.4
-  const userWaterSaved = userBagsRecycled * 25
-  const userRawMaterialSaved = userBagsRecycled * 0.5
+
+  const WEIGHT_PER_BAG = 2 // kg de material reciclado por saco
+  const PLASTIC_PER_KG = 0.52
+  const PAPER_PER_KG = 0.32
+  const METAL_PER_KG = 0.07
+  const GLASS_PER_KG = 0.09
+
+
+  const userEnergySaved = Math.round(
+    Number(userBagsRecycled) *
+      WEIGHT_PER_BAG *
+      (PLASTIC_PER_KG * 5.7 + PAPER_PER_KG * 4.2 + METAL_PER_KG * 12 + GLASS_PER_KG * 0.42)
+  ) // em kWh
+
+  const userCo2Avoided = Math.round(
+    Number(userBagsRecycled) *
+      WEIGHT_PER_BAG *
+      (PLASTIC_PER_KG * 1.02 + PAPER_PER_KG * 0.46 + METAL_PER_KG * 5.86 + GLASS_PER_KG * 0.31)
+  ) // em kg de CO2
+
+  const userWaterSaved = Math.round(
+    Number(userBagsRecycled) *
+      WEIGHT_PER_BAG *
+      (PLASTIC_PER_KG * 37 + PAPER_PER_KG * 60 + METAL_PER_KG * 40 + GLASS_PER_KG * 15)
+  ) // em litros
+
+  const userRawMaterialSaved = Math.round(
+    Number(userBagsRecycled) *
+      WEIGHT_PER_BAG *
+      (PLASTIC_PER_KG * 1 + PAPER_PER_KG * 1 + METAL_PER_KG * 1.4 + GLASS_PER_KG * 1.2)
+  ) // em kg
+  
 
   const  deleteRecord = async (id: number) => {
     try{
